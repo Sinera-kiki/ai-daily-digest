@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全球 AI 前沿早报 - {{ data.date_str }}</title>
+  <style>
+    /* 邮件全局重置 */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f6f8fa;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #24292f;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrapper {
+      width: 100%;
+      background-color: #f6f8fa;
+      padding: 30px 10px;
+      box-sizing: border-box;
+    }
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e1e4e8;
+    }
+    /* 顶部 Banner */
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #ffffff;
+      padding: 36px 32px 28px;
+      text-align: left;
+    }
+    .header-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      color: #38bdf8;
+    }
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+    .header p {
+      margin: 0;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    /* 主体内容 */
+    .content {
+      padding: 28px 32px;
+    }
+    /* 每日一句话总览 */
+    .overview-card {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      font-size: 14px;
+      color: #166534;
+      line-height: 1.6;
+    }
+    .overview-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    /* 分区板块 */
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 28px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      letter-spacing: -0.2px;
+    }
+    /* 资讯卡片 */
+    .item-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      transition: all 0.2s ease;
+    }
+    .item-header {
+      margin-bottom: 8px;
+    }
+    .item-tag {
+      display: inline-block;
+      background-color: #e0f2fe;
+      color: #0369a1;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    .item-source {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .item-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 6px 0 10px;
+      line-height: 1.4;
+    }
+    .item-takeaway {
+      background-color: #f8fafc;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #334155;
+      margin-bottom: 10px;
+      font-weight: 500;
+      border-left: 3px solid #38bdf8;
+    }
+    .item-content {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.65;
+      margin-bottom: 12px;
+    }
+    .item-link {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #2563eb;
+      text-decoration: none;
+    }
+    .item-link:hover {
+      text-decoration: underline;
+    }
+    /* 底部 Footer */
+    .footer {
+      background-color: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      padding: 24px 32px;
+      text-align: center;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .footer p {
+      margin: 4px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <!-- 头部 -->
+      <div class="header">
+        <div class="header-badge">⚡ AI Daily Pulse</div>
+        <h1>全球 AI 前沿早报</h1>
+        <p>汇聚全球顶级 Labs、开源社区与产研动态 · {{ data.date_str }}</p>
+      </div>
+
+      <!-- 内容区 -->
+      <div class="content">
+        <!-- 核心总览卡片 -->
+        {% if data.daily_overview %}
+        <div class="overview-card">
+          <div class="overview-title">💡 今日核心趋势观察</div>
+          <div>{{ data.daily_overview }}</div>
+        </div>
+        {% endif %}
+
+        <!-- 板块分类 -->
+        {% for sec in data.sections %}
+        <div class="section-title">
+          📌 {{ sec.section_name }}
+        </div>
+        
+        {% for item in sec.get('news_items', sec.get('items', [])) %}
+        <div class="item-card">
+          <div class="item-header">
+            {% if item.tag %}<span class="item-tag">{{ item.tag }}</span>{% endif %}
+            <span class="item-source">来源：{{ item.source }}</span>
+          </div>
+          <div class="item-title">{{ item.title }}</div>
+          {% if item.takeaway %}
+          <div class="item-takeaway">
+            🎯 <strong>核心要点：</strong>{{ item.takeaway }}
+          </div>
+          {% endif %}
+          <div class="item-content">{{ item.content }}</div>
+          <a href="{{ item.link }}" target="_blank" class="item-link">阅读原资讯 / 论文链接 →</a>
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
+
+      <!-- 底部版权与说明 -->
+      <div class="footer">
+        <p>本早报由 DeepSeek 智能清洗提炼 · GitHub Actions 自动化生成与投递</p>
+        <p>保持对前沿技术的敏锐度 🚀</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
