@@ -1,4 +1,4 @@
-# AI Daily Digest (每日 AI 资讯聚合与邮件推送)
+# AI Daily Digest
 
 一个基于 Python 与 GitHub Actions 的轻量级 AI 资讯自动化整理与邮件推送工具。
 
