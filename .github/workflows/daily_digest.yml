@@ -1,0 +1,39 @@
+name: AI Daily Digest Push
+
+on:
+  schedule:
+    # 每天北京时间 10:00 (UTC 02:00) 自动触发
+    - cron: '0 2 * * *'
+  workflow_dispatch: # 支持在 GitHub 网页上手动点击触发测试
+
+jobs:
+  build-and-send:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出仓库代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 执行抓取、提炼与邮件推送
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_BASE_URL: ${{ secrets.DEEPSEEK_BASE_URL || 'https://api.deepseek.com' }}
+          SMTP_SERVER: 'smtp.163.com'
+          SMTP_PORT: '465'
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+          RECEIVER_NAME: ${{ secrets.RECEIVER_NAME || '婉婷' }}
+        run: |
+          python main.py
