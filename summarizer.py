@@ -2,33 +2,32 @@ import os
 import json
 from openai import OpenAI
 
-SYSTEM_PROMPT = """你是一位顶尖的 AI 科技智库主编与资深 AI 产品经理。
-你的任务是将当天从全球和国内收集到的 AI 资讯进行深度清洗、筛选与精炼，制作成一份高质量的《全球 AI 前沿早报》。
+SYSTEM_PROMPT = """你是一个专业的 AI 资讯分析助手。请对当天收集到的 AI 相关资讯进行清洗、筛选与摘要整理。
 
-请遵循以下处理准则：
-1. 【严格筛选】：从提供的候选资讯中，筛选出最具行业影响力、技术突破性或产品价值的 6-10 条核心要闻。
-2. 【中文精炼】：无论原文是英文还是中文，一律输出高信息密度的专业中文。不要机器翻译感，用通俗地道、严谨的产研与科技语感。
-3. 【模块划分】：将选出的条目归类到以下板块之一：
-   - "重磅头条 & 产业大事件" (重大模型发布、科技巨头战略、行业风向标)
-   - "前沿研究与学术演进" (新架构、顶会/arXiv 突破性论文、算法演进)
-   - "开源生态与产品落地" (开源项目、AI Agent 应用、开发者工具、杀手级产品)
-4. 【结构化格式】：必须严格输出合法的 JSON 格式，不要添加任何 markdown 代码块外部的闲聊文字。
+处理要求：
+1. 【客观筛选】：从候选列表中筛选出 6-8 条具有技术演进、产品落地或行业参考价值的内容。
+2. 【语言风格】：语言客观平实、严谨简洁，避免夸张、修饰性或炒作类词汇（如“重磅”、“突发”、“颠覆”等）。准确传达事件或论文的核心事实与结论。
+3. 【分类归纳】：将内容归类至以下三个板块之一：
+   - "行业与产品动态"（产品发布、公司动态、行业合作）
+   - "技术研究与论文"（模型架构、算法演进、论文成果）
+   - "开源项目与工具"（开源模型、开发者工具、应用框架）
+4. 【输出格式】：必须严格输出 JSON 格式，不要包含多余的闲聊文字。
 
-JSON Schema 结构如下：
+JSON Schema：
 {
   "date_str": "YYYY年MM月DD日",
-  "daily_overview": "用一两句极具前瞻性的话总结今日 AI 领域的最大看点与核心风向",
+  "daily_overview": "用 1-2 句话客观概括今日主要动态与核心关注点",
   "sections": [
     {
       "section_name": "板块名称",
       "news_items": [
         {
-          "title": "中文精炼标题（清晰有力）",
-          "tag": "标签（如 #LLM / #Agent / #多模态 / #开源 / #商业化）",
+          "title": "中文标题（客观准确，概括核心事实）",
+          "tag": "标签（如 #大模型 / #Agent / #多模态 / #开源 / #工具）",
           "source": "原始来源名称",
           "link": "原始链接",
-          "takeaway": "核心看点（一句话点出关键突破）",
-          "content": "深度解读（2-3句话：具体做了什么、关键亮点、对行业或开发者的意义）"
+          "takeaway": "核心要点（1 句话概括关键信息）",
+          "content": "内容说明（2-3 句话：具体内容、技术/业务特点及背景说明）"
         }
       ]
     }
@@ -37,10 +36,10 @@ JSON Schema 结构如下：
 """
 
 def summarize_with_deepseek(articles: list[dict], api_key: str | None = None) -> dict:
-    """使用 DeepSeek 大模型对收集到的资讯进行提炼与结构化总结"""
+    """使用 DeepSeek 模型对收集到的资讯进行结构化摘要整理"""
     key = api_key or os.getenv("DEEPSEEK_API_KEY")
     if not key:
-        raise ValueError("未找到 DEEPSEEK_API_KEY 环境变量或配置！")
+        raise ValueError("未找到 DEEPSEEK_API_KEY 配置！")
 
     base_url = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
     
@@ -49,19 +48,18 @@ def summarize_with_deepseek(articles: list[dict], api_key: str | None = None) ->
         base_url=base_url
     )
 
-    # 组装 Prompt
     articles_text = ""
     for idx, art in enumerate(articles, 1):
         articles_text += f"\n[{idx}] 标题: {art['title']}\n来源: {art['source']} ({art['category']})\n链接: {art['link']}\n摘要: {art['summary']}\n"
 
-    user_prompt = f"""以下是过去 24-48 小时内收集到的 AI 资讯候选列表（共 {len(articles)} 条）：
+    user_prompt = f"""以下是收集到的资讯候选列表（共 {len(articles)} 条）：
 ----------------------------------------
 {articles_text}
 ----------------------------------------
 
-请按照系统提示要求，筛选出最精选的 6-10 条核心要闻，提炼今日 AI 早报，并以纯 JSON 格式返回。"""
+请按要求筛选 6-8 条内容并生成结构化 JSON 摘要。"""
 
-    print("[*] 正在调用 DeepSeek-Chat 模型进行智能筛选与深度提炼...")
+    print("[*] 正在调用 DeepSeek 生成结构化摘要...")
     
     response = client.chat.completions.create(
         model="deepseek-chat",
@@ -70,14 +68,14 @@ def summarize_with_deepseek(articles: list[dict], api_key: str | None = None) ->
             {"role": "user", "content": user_prompt}
         ],
         response_format={"type": "json_object"},
-        temperature=0.3
+        temperature=0.2
     )
 
     raw_content = response.choices[0].message.content.strip()
 
     try:
         data = json.loads(raw_content)
-        print("[+] DeepSeek 结构化总结生成成功！")
+        print("[+] 结构化摘要生成成功！")
         return data
     except Exception as e:
         print(f"[-] JSON 解析失败: {e}\n原始输出内容:\n{raw_content}")
